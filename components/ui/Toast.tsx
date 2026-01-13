@@ -1,0 +1,27 @@
+'use client';
+
+import React, { useEffect } from 'react';
+import { CheckCircle } from 'lucide-react';
+
+interface ToastProps {
+  message: string;
+  onClose: () => void;
+  duration?: number;
+}
+
+export function Toast({ message, onClose, duration = 3000 }: ToastProps) {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, duration);
+
+    return () => clearTimeout(timer);
+  }, [duration, onClose]);
+
+  return (
+    <div className="fixed bottom-4 right-4 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-slide-up z-50">
+      <CheckCircle className="w-5 h-5" />
+      <span className="font-medium">{message}</span>
+    </div>
+  );
+}
