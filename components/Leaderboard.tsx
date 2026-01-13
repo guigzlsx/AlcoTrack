@@ -16,14 +16,24 @@ interface LeaderboardProps {
 export function Leaderboard({ event }: LeaderboardProps) {
   const [sortBy, setSortBy] = useState<'bac' | 'alcohol'>('bac');
   const [leaderboard, setLeaderboard] = useState(() =>
-    calculateLeaderboard(event.participants, event.consumptions, PRESET_DRINKS, sortBy)
+    calculateLeaderboard(
+      event.participants || [], 
+      event.consumptions || [], 
+      PRESET_DRINKS, 
+      sortBy
+    )
   );
 
   // Mettre à jour le leaderboard toutes les 10 secondes
   useEffect(() => {
     const interval = setInterval(() => {
       setLeaderboard(
-        calculateLeaderboard(event.participants, event.consumptions, PRESET_DRINKS, sortBy)
+        calculateLeaderboard(
+          event.participants || [], 
+          event.consumptions || [], 
+          PRESET_DRINKS, 
+          sortBy
+        )
       );
     }, 10000);
 
@@ -33,7 +43,12 @@ export function Leaderboard({ event }: LeaderboardProps) {
   // Recalculer immédiatement quand le tri change
   useEffect(() => {
     setLeaderboard(
-      calculateLeaderboard(event.participants, event.consumptions, PRESET_DRINKS, sortBy)
+      calculateLeaderboard(
+        event.participants || [], 
+        event.consumptions || [], 
+        PRESET_DRINKS, 
+        sortBy
+      )
     );
   }, [event, sortBy]);
 

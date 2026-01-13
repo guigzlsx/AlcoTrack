@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Plus, Users } from 'lucide-react';
 import { Event, User } from '@/lib/types';
 import { generateId, generateEventCode } from '@/lib/utils';
+import { createEvent, getEvent, addParticipant } from '@/lib/firebase-events';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
@@ -20,7 +21,7 @@ export function EventManager({ user, onEventCreated, onEventJoined }: EventManag
   const [eventCode, setEventCode] = useState('');
   const [error, setError] = useState('');
 
-  const handleCreateEvent = (e: React.FormEvent) => {
+  const handleCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -37,10 +38,17 @@ export function EventManager({ user, onEventCreated, onEventJoined }: EventManag
       consumptions: [],
     };
 
-    onEventCreated(newEvent);
+    try {
+      // Sauvegarder dans Firebase
+      await createEvent(newEvent);
+      onEventCreated(newEvent);
+    } catch (error) {
+      console.error('Erreur création événement:', error);
+      setError('Erreur lors de la création de l\'événement');
+    }
   };
 
-  const handleJoinEvent = (e: React.FormEvent) => {
+  const handleJoinEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -49,27 +57,28 @@ export function EventManager({ user, onEventCreated, onEventJoined }: EventManag
       return;
     }
 
-    // Récupérer l'événement depuis le localStorage
-    const storedEvents = localStorage.getItem('alcotrack_events');
-    if (storedEvents) {
-      const events: Event[] = JSON.parse(storedEvents);
-      const event = events.find((e) => e.id === eventCode.toUpperCase());
-
-      if (event) {
-        // Vérifier si l'utilisateur n'est pas déjà dans l'événement
-        const alreadyInEvent = event.participants.some((p) => p.id === user.id);
-        if (!alreadyInEvent) {
-          event.participants.push(user);
-          // Sauvegarder l'événement mis à jour
-          const updatedEvents = events.map((e) => (e.id === event.id ? event : e));
-          localStorage.setItem('alcotrack_events', JSON.stringify(updatedEvents));
-        }
-        onEventJoined(event);
+    try {
+      // Récupérer l'événement depuis Firebase
+      const event = await getEvent(eventCode.toUpperCase());
+      
+      if (!event) {
+        setError('Événement non trouvé. Vérifiez le code.');
         return;
       }
-    }
 
-    setError('Événement non trouvé');
+      // Vérifier si l'utilisateur n'est pas déjà dans l'événement
+      const alreadyInEvent = event.participants.some((p) => p.id === user.id);
+      if (!alreadyInEvent) {
+        event.participants.push(user);
+        // Sauvegarder dans Firebase
+        await addParticipant(event.id, event);
+      }
+      
+      onEventJoined(event);
+    } catch (error) {
+      console.error('Erreur jonction événement:', error);
+      setError('Erreur lors de la jonction de l\'événement');
+    }
   };
 
   if (mode === 'choice') {

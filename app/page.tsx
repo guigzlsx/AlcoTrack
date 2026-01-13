@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { User, Event, DrinkConsumption } from '@/lib/types';
+import { isFirebaseConfigured } from '@/lib/firebase';
+import { subscribeToEvent, addConsumption } from '@/lib/firebase-events';
 import { UserProfile } from '@/components/UserProfile';
 import { EventManager } from '@/components/EventManager';
 import { EventHeader } from '@/components/EventHeader';
@@ -9,6 +11,7 @@ import { DrinkSelector } from '@/components/DrinkSelector';
 import { Leaderboard } from '@/components/Leaderboard';
 import { Toast } from '@/components/ui/Toast';
 import { InfoModal } from '@/components/InfoModal';
+import { FirebaseNotConfigured } from '@/components/FirebaseNotConfigured';
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
@@ -16,27 +19,32 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
 
+  // Vérifier si Firebase est configuré
+  if (!isFirebaseConfigured) {
+    return <FirebaseNotConfigured />;
+  }
+
   // Charger les données depuis le localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem('alcotrack_user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-
-    const storedEventId = localStorage.getItem('alcotrack_current_event');
-    if (storedEventId) {
-      const storedEvents = localStorage.getItem('alcotrack_events');
-      if (storedEvents) {
-        const events: Event[] = JSON.parse(storedEvents);
-        const event = events.find((e) => e.id === storedEventId);
-        if (event) {
-          setCurrentEvent(event);
-        }
-      }
-    }
-
     setIsLoading(false);
   }, []);
+
+  // S'abonner aux mises à jour temps réel de l'événement
+  useEffect(() => {
+    if (!currentEvent) return;
+
+    const unsubscribe = subscribeToEvent(currentEvent.id, (updatedEvent) => {
+      if (updatedEvent) {
+        setCurrentEvent(updatedEvent);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [currentEvent?.id]);
 
   // Sauvegarder l'utilisateur
   const handleUserSave = (newUser: User) => {
@@ -48,20 +56,12 @@ export default function Home() {
   // Créer un événement
   const handleEventCreated = (event: Event) => {
     setCurrentEvent(event);
-    localStorage.setItem('alcotrack_current_event', event.id);
-    
-    // Sauvegarder l'événement
-    const storedEvents = localStorage.getItem('alcotrack_events');
-    const events: Event[] = storedEvents ? JSON.parse(storedEvents) : [];
-    events.push(event);
-    localStorage.setItem('alcotrack_events', JSON.stringify(events));
     setToast(`Événement créé ! Code: ${event.id}`);
   };
 
   // Rejoindre un événement
   const handleEventJoined = (event: Event) => {
     setCurrentEvent(event);
-    localStorage.setItem('alcotrack_current_event', event.id);
     setToast(`Rejoint ${event.name} !`);
   };
 
@@ -72,27 +72,17 @@ export default function Home() {
   };
 
   // Ajouter une boisson
-  const handleDrinkAdded = (consumption: DrinkConsumption) => {
+  const handleDrinkAdded = async (consumption: DrinkConsumption) => {
     if (!currentEvent) return;
 
-    const updatedEvent = {
-      ...currentEvent,
-      consumptions: [...currentEvent.consumptions, consumption],
-    };
-
-    setCurrentEvent(updatedEvent);
-
-    // Mettre à jour dans le localStorage
-    const storedEvents = localStorage.getItem('alcotrack_events');
-    if (storedEvents) {
-      const events: Event[] = JSON.parse(storedEvents);
-      const updatedEvents = events.map((e) =>
-        e.id === updatedEvent.id ? updatedEvent : e
-      );
-      localStorage.setItem('alcotrack_events', JSON.stringify(updatedEvents));
+    try {
+      await addConsumption(currentEvent.id, consumption);
+      setToast('Boisson ajoutée !');
+      // L'événement sera mis à jour automatiquement via subscribeToEvent
+    } catch (error) {
+      console.error('Erreur ajout boisson:', error);
+      setToast('Erreur lors de l\'ajout de la boisson');
     }
-
-    setToast('Boisson ajoutée !');
   };
 
   if (isLoading) {

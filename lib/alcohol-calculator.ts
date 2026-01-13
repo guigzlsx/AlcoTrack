@@ -101,8 +101,12 @@ export function calculateLeaderboard(
 ): BAC[] {
   const currentTime = Date.now();
   
-  const leaderboard = users.map((user) => {
-    const userConsumptions = consumptions.filter((c) => c.userId === user.id);
+  // Vérifier que les données sont définies
+  const safeUsers = users || [];
+  const safeConsumptions = consumptions || [];
+  
+  const leaderboard = safeUsers.map((user) => {
+    const userConsumptions = safeConsumptions.filter((c) => c.userId === user.id);
     return calculateUserBAC(user, userConsumptions, drinks, currentTime);
   });
 
