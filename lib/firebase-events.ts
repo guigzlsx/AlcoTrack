@@ -6,6 +6,7 @@ import { Event, DrinkConsumption } from './types';
  * Créer un nouvel événement dans Firebase
  */
 export async function createEvent(event: Event): Promise<void> {
+  if (!database) throw new Error('Firebase is not configured');
   const eventRef = ref(database, `events/${event.id}`);
   await set(eventRef, event);
 }
@@ -14,6 +15,7 @@ export async function createEvent(event: Event): Promise<void> {
  * Récupérer un événement par son code
  */
 export async function getEvent(eventId: string): Promise<Event | null> {
+  if (!database) throw new Error('Firebase is not configured');
   const eventRef = ref(database, `events/${eventId}`);
   const snapshot = await get(eventRef);
   
@@ -27,6 +29,7 @@ export async function getEvent(eventId: string): Promise<Event | null> {
  * Ajouter un participant à un événement
  */
 export async function addParticipant(eventId: string, event: Event): Promise<void> {
+  if (!database) throw new Error('Firebase is not configured');
   const eventRef = ref(database, `events/${eventId}`);
   await update(eventRef, { participants: event.participants });
 }
@@ -38,6 +41,7 @@ export async function addConsumption(
   eventId: string,
   consumption: DrinkConsumption
 ): Promise<void> {
+  if (!database) throw new Error('Firebase is not configured');
   const event = await getEvent(eventId);
   if (!event) throw new Error('Événement non trouvé');
   
@@ -53,6 +57,7 @@ export function subscribeToEvent(
   eventId: string,
   callback: (event: Event | null) => void
 ): () => void {
+  if (!database) throw new Error('Firebase is not configured');
   const eventRef = ref(database, `events/${eventId}`);
   
   const unsubscribe = onValue(eventRef, (snapshot) => {

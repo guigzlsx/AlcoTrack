@@ -1,5 +1,5 @@
-import { initializeApp, getApps } from 'firebase/app';
-import { getDatabase } from 'firebase/database';
+import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
+import { getDatabase, Database } from 'firebase/database';
 
 // Configuration Firebase depuis les variables d'environnement
 const firebaseConfig = {
@@ -20,8 +20,8 @@ export const isFirebaseConfigured = !!(
 );
 
 // Initialiser Firebase seulement si configuré
-let app;
-let database;
+let app: FirebaseApp | undefined;
+let database: Database | undefined;
 
 if (isFirebaseConfigured) {
   // Éviter la double initialisation
