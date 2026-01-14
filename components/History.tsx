@@ -4,6 +4,7 @@ import React from 'react';
 import { ArrowLeft, Calendar, Wine } from 'lucide-react';
 import { User, Event } from '@/lib/types';
 import { PRESET_DRINKS } from '@/lib/constants';
+import { calculateAlcoholMass } from '@/lib/alcohol-calculator';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
@@ -35,7 +36,7 @@ export function History({ user, onClose }: HistoryProps) {
     userConsumptions.forEach(consumption => {
       const drink = PRESET_DRINKS.find(d => d.id === consumption.drinkId);
       if (drink) {
-        totalAlcohol += drink.alcoholMass;
+        totalAlcohol += calculateAlcoholMass(drink.volume, drink.alcoholPercentage);
       }
     });
 
