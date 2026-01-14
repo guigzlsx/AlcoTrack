@@ -108,7 +108,7 @@ export default function Home() {
       <InfoModal />
       
       {/* Bouton paramètres en haut à gauche */}
-      {user && (
+      {user && !currentEvent && (
         <button
           onClick={() => setShowSettings(true)}
           className="fixed top-4 left-4 p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors z-10"
