@@ -69,14 +69,15 @@ export function Leaderboard({ event }: LeaderboardProps) {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <Trophy className="w-6 h-6 text-yellow-600" />
             <CardTitle>Classement</CardTitle>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap sm:flex-nowrap w-full sm:w-auto">
             <Button
               size="sm"
+              className="flex-1 sm:flex-none"
               variant={sortBy === 'bac' ? 'primary' : 'outline'}
               onClick={() => setSortBy('bac')}
             >
@@ -84,6 +85,7 @@ export function Leaderboard({ event }: LeaderboardProps) {
             </Button>
             <Button
               size="sm"
+              className="flex-1 sm:flex-none"
               variant={sortBy === 'alcohol' ? 'primary' : 'outline'}
               onClick={() => setSortBy('alcohol')}
             >
