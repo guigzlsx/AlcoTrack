@@ -26,6 +26,8 @@ html {
   padding: 0;
   /* Empêche le rubber banding / overscroll */
   overscroll-behavior-y: none;
+  /* Couleur de fond pour les zones hors-page Safari */
+  background-color: var(--background);
 }
 
 body {
