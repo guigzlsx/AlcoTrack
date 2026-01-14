@@ -110,7 +110,7 @@ export function Leaderboard({ event }: LeaderboardProps) {
                       {getRankEmoji(index)}
                     </span>
                     <div>
-                      <h4 className="font-bold text-lg">{entry.userName}</h4>
+                      <h4 className="font-bold text-lg text-gray-900">{entry.userName}</h4>
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <TrendingUp className="w-4 h-4" />
                         <span>{formatAlcohol(entry.totalAlcohol)}g d&apos;alcool</span>

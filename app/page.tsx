@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Settings } from 'lucide-react';
 import { User, Event, DrinkConsumption } from '@/lib/types';
 import { isFirebaseConfigured } from '@/lib/firebase';
 import { subscribeToEvent, addConsumption } from '@/lib/firebase-events';
@@ -18,6 +19,7 @@ export default function Home() {
   const [currentEvent, setCurrentEvent] = useState<Event | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Vérifier si Firebase est configuré
   if (!isFirebaseConfigured) {
@@ -51,6 +53,7 @@ export default function Home() {
     setUser(newUser);
     localStorage.setItem('alcotrack_user', JSON.stringify(newUser));
     setToast('Profil enregistré !');
+    setShowSettings(false);
   };
 
   // Créer un événement
@@ -88,7 +91,14 @@ export default function Home() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
-        <div className="text-2xl font-bold text-blue-600">Chargement...</div>
+        <div className="text-2xl font-bold text-blue-600">
+          Chargement
+          <span className="inline-flex">
+            <span className="animate-bounce-dot-1">.</span>
+            <span className="animate-bounce-dot-2">.</span>
+            <span className="animate-bounce-dot-3">.</span>
+          </span>
+        </div>
       </div>
     );
   }
@@ -96,6 +106,38 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
       <InfoModal />
+      
+      {/* Bouton paramètres en haut à gauche */}
+      {user && (
+        <button
+          onClick={() => setShowSettings(true)}
+          className="fixed top-4 left-4 p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors z-10"
+          aria-label="Paramètres"
+        >
+          <Settings className="w-6 h-6 text-gray-700" />
+        </button>
+      )}
+
+      {/* Modal paramètres */}
+      {showSettings && user && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 border-b flex justify-between items-center">
+              <h2 className="text-xl font-bold">Paramètres du profil</h2>
+              <button
+                onClick={() => setShowSettings(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-4">
+              <UserProfile user={user} onSave={handleUserSave} />
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center">

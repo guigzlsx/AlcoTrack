@@ -55,3 +55,30 @@ body {
   animation: slide-up 0.3s ease-out;
 }
 
+@keyframes bounce-dot {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce-dot-1 {
+  display: inline-block;
+  animation: bounce-dot 1s ease-in-out infinite;
+  animation-delay: 0s;
+}
+
+.animate-bounce-dot-2 {
+  display: inline-block;
+  animation: bounce-dot 1s ease-in-out infinite;
+  animation-delay: 0.2s;
+}
+
+.animate-bounce-dot-3 {
+  display: inline-block;
+  animation: bounce-dot 1s ease-in-out infinite;
+  animation-delay: 0.4s;
+}
+

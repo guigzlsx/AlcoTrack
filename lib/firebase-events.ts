@@ -45,6 +45,11 @@ export async function addConsumption(
   const event = await getEvent(eventId);
   if (!event) throw new Error('Événement non trouvé');
   
+  // Initialiser consumptions s'il n'existe pas
+  if (!event.consumptions) {
+    event.consumptions = [];
+  }
+  
   event.consumptions.push(consumption);
   const eventRef = ref(database, `events/${eventId}`);
   await update(eventRef, { consumptions: event.consumptions });
