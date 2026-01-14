@@ -13,6 +13,7 @@ import { Leaderboard } from '@/components/Leaderboard';
 import { Toast } from '@/components/ui/Toast';
 import { InfoModal } from '@/components/InfoModal';
 import { FirebaseNotConfigured } from '@/components/FirebaseNotConfigured';
+import { History } from '@/components/History';
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
@@ -20,6 +21,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   // Vérifier si Firebase est configuré
   if (!isFirebaseConfigured) {
@@ -70,6 +72,23 @@ export default function Home() {
 
   // Quitter l'événement
   const handleLeaveEvent = () => {
+    if (currentEvent && user) {
+      // Sauvegarder dans l'historique
+      const historyKey = `alcotrack_history_${user.id}`;
+      const stored = localStorage.getItem(historyKey);
+      const history = stored ? JSON.parse(stored) : [];
+      
+      // Ajouter l'événement s'il n'existe pas déjà
+      const exists = history.find((h: any) => h.event.id === currentEvent.id);
+      if (!exists) {
+        history.push({
+          event: currentEvent,
+          participatedAt: Date.now(),
+        });
+        localStorage.setItem(historyKey, JSON.stringify(history));
+      }
+    }
+    
     setCurrentEvent(null);
     localStorage.removeItem('alcotrack_current_event');
   };
@@ -131,11 +150,27 @@ export default function Home() {
                 ×
               </button>
             </div>
-            <div className="p-4">
+            <div className="p-4 space-y-4">
               <UserProfile user={user} onSave={handleUserSave} />
+              
+              {/* Bouton Historique */}
+              <button
+                onClick={() => {
+                  setShowSettings(false);
+                  setShowHistory(true);
+                }}
+                className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-600 transition-colors"
+              >
+                📊 Voir mon historique
+              </button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Page Historique */}
+      {showHistory && user && (
+        <History user={user} onClose={() => setShowHistory(false)} />
       )}
 
       <div className="max-w-2xl mx-auto space-y-6">
