@@ -185,7 +185,9 @@ export default function Home() {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">🍻 AlcoTrack</h1>
+          <a href="/">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">🍻 AlcoTrack</h1>
+          </a>
           <p className="text-gray-600">Suivi de consommation en soirée</p>
         </div>
 
