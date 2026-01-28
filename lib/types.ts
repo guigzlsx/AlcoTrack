@@ -35,5 +35,6 @@ export interface BAC {
   userName: string;
   currentBAC: number; // g/L
   totalAlcohol: number; // grammes
+  totalDrinks?: number; // Ajout de la propriété facultative totalDrinks
   lastDrinkTime?: number;
 }
