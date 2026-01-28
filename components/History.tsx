@@ -1,154 +1,59 @@
 'use client';
 
 import React from 'react';
-import { ArrowLeft, Calendar, Wine } from 'lucide-react';
-import { User, Event } from '@/lib/types';
-import { PRESET_DRINKS } from '@/lib/constants';
-import { calculateAlcoholMass } from '@/lib/alcohol-calculator';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import { DrinkConsumption, Drink } from '@/lib/types';
 
 interface HistoryProps {
-  user: User;
+  userId: string;
+  userName: string;
+  consumptions: DrinkConsumption[];
+  drinks: Drink[];
+  onDelete: (consumptionId: string) => void;
   onClose: () => void;
 }
 
-interface EventHistory {
-  event: Event;
-  participatedAt: number;
-}
-
-export function History({ user, onClose }: HistoryProps) {
-  // Récupérer l'historique depuis localStorage
-  const getEventHistory = (): EventHistory[] => {
-    const stored = localStorage.getItem(`alcotrack_history_${user.id}`);
-    return stored ? JSON.parse(stored) : [];
-  };
-
-  const history = getEventHistory();
-
-  // Calculer la consommation pour un événement
-  const getEventConsumption = (event: Event) => {
-    const userConsumptions = (event.consumptions || []).filter(c => c.userId === user.id);
-    let totalAlcohol = 0;
-    let totalDrinks = userConsumptions.length;
-
-    userConsumptions.forEach(consumption => {
-      const drink = PRESET_DRINKS.find(d => d.id === consumption.drinkId);
-      if (drink) {
-        totalAlcohol += calculateAlcoholMass(drink.volume, drink.alcoholPercentage);
-      }
-    });
-
-    return { totalAlcohol, totalDrinks };
-  };
-
-  // Calculer le total global
-  const getTotalConsumption = () => {
-    let totalAlcohol = 0;
-    let totalDrinks = 0;
-
-    history.forEach(({ event }) => {
-      const { totalAlcohol: eventAlcohol, totalDrinks: eventDrinks } = getEventConsumption(event);
-      totalAlcohol += eventAlcohol;
-      totalDrinks += eventDrinks;
-    });
-
-    return { totalAlcohol, totalDrinks };
-  };
-
-  const totalStats = getTotalConsumption();
+export const History: React.FC<HistoryProps> = ({
+  userId,
+  userName,
+  consumptions,
+  drinks,
+  onDelete,
+  onClose,
+}) => {
+  const userConsumptions = consumptions.filter((c) => c.userId === userId);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
-      <div className="max-w-2xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-white/50 rounded-lg transition-colors"
-            aria-label="Retour"
-          >
-            <ArrowLeft className="w-6 h-6 text-gray-700" />
-          </button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">📊 Historique</h1>
-            <p className="text-gray-600">Vos événements passés</p>
-          </div>
-        </div>
-
-        {/* Liste des événements */}
-        {history.length === 0 ? (
-          <Card>
-            <CardContent className="text-center py-12">
-              <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">Aucun événement dans l'historique</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {history.map(({ event, participatedAt }) => {
-              const { totalAlcohol, totalDrinks } = getEventConsumption(event);
-              
-              return (
-                <Card key={event.id}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span>{event.name}</span>
-                      <span className="text-sm font-normal text-gray-500">
-                        {new Date(participatedAt).toLocaleDateString('fr-FR')}
-                      </span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center p-4 bg-blue-50 rounded-lg">
-                        <div className="text-3xl font-bold text-blue-600">{totalDrinks}</div>
-                        <div className="text-sm text-gray-600">Boissons</div>
-                      </div>
-                      <div className="text-center p-4 bg-purple-50 rounded-lg">
-                        <div className="text-3xl font-bold text-purple-600">
-                          {totalAlcohol.toFixed(1)}g
-                        </div>
-                        <div className="text-sm text-gray-600">Alcool pur</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Total global */}
-        {history.length > 0 && (
-          <Card className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Wine className="w-6 h-6" />
-                Total Global
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center">
-                  <div className="text-4xl font-bold">{totalStats.totalDrinks}</div>
-                  <div className="text-blue-100">Boissons au total</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold">{totalStats.totalAlcohol.toFixed(1)}g</div>
-                  <div className="text-purple-100">Alcool pur total</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Bouton retour */}
-        <Button onClick={onClose} className="w-full" size="lg">
-          Retour
-        </Button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4">Historique de {userName}</h2>
+        <ul className="space-y-3">
+          {userConsumptions.map((consumption) => {
+            const drink = drinks.find((d) => d.id === consumption.drinkId);
+            return (
+              <li
+                key={consumption.id}
+                className="flex justify-between items-center border-b pb-2"
+              >
+                <span className="text-black">
+                  {drink?.icon} {drink?.name || 'Boisson inconnue'} - {new Date(consumption.timestamp).toLocaleTimeString()}
+                </span>
+                <button
+                  className="text-red-600 hover:underline"
+                  onClick={() => onDelete(consumption.id)}
+                >
+                  Supprimer
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        <button
+          className="mt-4 w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
+          onClick={onClose}
+        >
+          Fermer
+        </button>
       </div>
     </div>
   );
-}
+};

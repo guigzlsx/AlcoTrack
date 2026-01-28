@@ -8,6 +8,7 @@ import { calculateLeaderboard } from '@/lib/alcohol-calculator';
 import { formatBAC, formatAlcohol } from '@/lib/utils';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { History } from '@/components/History';
 
 interface LeaderboardProps {
   event: Event;
@@ -23,6 +24,7 @@ export function Leaderboard({ event }: LeaderboardProps) {
       sortBy
     )
   );
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   // Mettre à jour le leaderboard toutes les 10 secondes
   useEffect(() => {
@@ -71,6 +73,14 @@ export function Leaderboard({ event }: LeaderboardProps) {
     return `${index + 1}`;
   };
 
+  const handleUserClick = (userId: string) => {
+    setSelectedUserId(userId);
+  };
+
+  const handleCloseHistory = () => {
+    setSelectedUserId(null);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -110,6 +120,7 @@ export function Leaderboard({ event }: LeaderboardProps) {
               <div
                 key={entry.userId}
                 className={`border-2 rounded-lg p-4 transition-all ${getRankColor(index)}`}
+                onClick={() => handleUserClick(entry.userId)}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -117,7 +128,10 @@ export function Leaderboard({ event }: LeaderboardProps) {
                       {getRankEmoji(index)}
                     </span>
                     <div>
-                      <h4 className="font-bold text-lg text-gray-900">
+                      <h4
+                        className="font-bold text-lg text-gray-900 cursor-pointer hover:underline"
+                        onClick={() => handleUserClick(entry.userId)}
+                      >
                         {entry.userName}
                       </h4>
                       {entry.currentBAC > 0.5 && (
@@ -142,6 +156,29 @@ export function Leaderboard({ event }: LeaderboardProps) {
             ))
           )}
         </div>
+        {selectedUserId && (
+          <History
+            userId={selectedUserId}
+            userName={leaderboard.find((entry) => entry.userId === selectedUserId)?.userName || ''}
+            consumptions={event.consumptions}
+            drinks={PRESET_DRINKS}
+            onDelete={(consumptionId) => {
+              // Supprimer la consommation
+              const updatedConsumptions = event.consumptions.filter(
+                (c) => c.id !== consumptionId
+              );
+              setLeaderboard(
+                calculateLeaderboard(
+                  event.participants || [],
+                  updatedConsumptions,
+                  PRESET_DRINKS,
+                  sortBy
+                )
+              );
+            }}
+            onClose={handleCloseHistory}
+          />
+        )}
       </CardContent>
     </Card>
   );
