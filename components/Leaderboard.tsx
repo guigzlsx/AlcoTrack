@@ -52,6 +52,11 @@ export function Leaderboard({ event }: LeaderboardProps) {
     );
   }, [event, sortBy]);
 
+  useEffect(() => {
+    console.log('Tri par:', sortBy);
+    console.log('Leaderboard recalculé:', leaderboard);
+  }, [leaderboard, sortBy]);
+
   const getRankColor = (index: number) => {
     if (index === 0) return 'bg-yellow-100 border-yellow-400';
     if (index === 1) return 'bg-gray-100 border-gray-400';
@@ -112,7 +117,12 @@ export function Leaderboard({ event }: LeaderboardProps) {
                       {getRankEmoji(index)}
                     </span>
                     <div>
-                      <h4 className="font-bold text-lg text-gray-900">{entry.userName}</h4>
+                      <h4 className="font-bold text-lg text-gray-900">
+                        {entry.userName}
+                      </h4>
+                      {entry.currentBAC > 0.5 && (
+                        <span className="text-red-600 text-sm font-semibold">⚠️ Alcool volant &gt; Lim.</span>
+                      )}
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <TrendingUp className="w-4 h-4" />
                         <span>{formatAlcohol(entry.totalAlcohol)}g d&apos;alcool</span>
@@ -121,9 +131,11 @@ export function Leaderboard({ event }: LeaderboardProps) {
                   </div>
                   <div className="text-right">
                     <div className="text-3xl font-bold text-blue-600">
-                      {formatBAC(entry.currentBAC)}
+                      {sortBy === 'alcohol' ? entry.totalDrinks : formatBAC(entry.currentBAC)}
                     </div>
-                    <div className="text-sm text-gray-600">g/L</div>
+                    <div className="text-sm text-gray-600">
+                      {sortBy === 'alcohol' ? (entry.totalDrinks === 1 ? 'verre' : 'verres') : 'g/L'}
+                    </div>
                   </div>
                 </div>
               </div>

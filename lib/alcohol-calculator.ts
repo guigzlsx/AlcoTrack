@@ -51,11 +51,14 @@ export function calculateUserBAC(
 ): BAC {
   let totalBAC = 0;
   let totalAlcohol = 0;
+  let totalDrinks = 0; // Compteur pour le nombre de verres
   let lastDrinkTime: number | undefined;
 
   consumptions.forEach((consumption) => {
     const drink = drinks.find((d) => d.id === consumption.drinkId);
     if (!drink) return;
+
+    totalDrinks += 1; // Incrémente le compteur pour chaque consommation
 
     const alcoholMass = calculateAlcoholMass(drink.volume, drink.alcoholPercentage);
     totalAlcohol += alcoholMass;
@@ -81,6 +84,7 @@ export function calculateUserBAC(
     userName: user.name,
     currentBAC: totalBAC,
     totalAlcohol,
+    totalDrinks, // Ajout du nombre total de verres
     lastDrinkTime,
   };
 }
