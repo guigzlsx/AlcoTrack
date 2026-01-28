@@ -82,3 +82,14 @@ body {
   animation-delay: 0.4s;
 }
 
+select {
+  color: black !important;
+}
+
+select option {
+  color: black !important;
+  background-color: white !important;
+}
+
+/* Suppression des règles CSS inutiles */
+
