@@ -121,6 +121,13 @@ export function Leaderboard({ event }: LeaderboardProps) {
                 key={entry.userId}
                 className={`border-2 rounded-lg p-4 transition-all ${getRankColor(index)}`}
                 onClick={() => handleUserClick(entry.userId)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    handleUserClick(entry.userId);
+                  }
+                }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
