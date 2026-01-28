@@ -174,6 +174,11 @@ export function Leaderboard({ event }: LeaderboardProps) {
               const updatedConsumptions = event.consumptions.filter(
                 (c) => c.id !== consumptionId
               );
+
+              // Mettre à jour l'événement avec les consommations modifiées
+              event.consumptions = updatedConsumptions;
+
+              // Recalculer le leaderboard
               setLeaderboard(
                 calculateLeaderboard(
                   event.participants || [],
