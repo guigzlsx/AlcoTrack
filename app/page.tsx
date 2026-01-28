@@ -170,7 +170,16 @@ export default function Home() {
 
       {/* Page Historique */}
       {showHistory && user && (
-        <History user={user} onClose={() => setShowHistory(false)} />
+        <History
+          userId={user.id}
+          userName={user.name}
+          consumptions={[] /* Ajoutez les consommations ici */}
+          drinks={[] /* Ajoutez les boissons ici */}
+          onClose={() => setShowHistory(false)}
+          onDelete={(consumptionId) => {
+            console.log(`Supprimer consommation: ${consumptionId}`);
+          }}
+        />
       )}
 
       <div className="max-w-2xl mx-auto space-y-6">
