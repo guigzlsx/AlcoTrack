@@ -21,7 +21,7 @@ export const History: React.FC<HistoryProps> = ({
   onClose,
 }) => {
   useEffect(() => {
-    const modal = document.querySelector('.history-modal');
+    const modal = document.querySelector('.history-modal') as HTMLElement | null;
     if (modal) {
       modal.style.opacity = '0';
       modal.style.transform = 'scale(0.9)';
